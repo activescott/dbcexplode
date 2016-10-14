@@ -13,4 +13,4 @@ Unpack a folder of dbc files:
 
 
 ## TODO
-- Unpack the dbc zip archive file directly from the compressed archive. 
+- <strike>Unpack the dbc zip archive file directly from the compressed archive.</strike> 

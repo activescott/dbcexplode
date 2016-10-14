@@ -38,8 +38,7 @@ def outdir(inputFile):
     os.mkdir(outdir)
   return outdir
 
-def processfile(filepath):
-  print('loading file ', filepath)
+def processjsonfile(filepath):
   with open(filepath) as f:
     try:
       notebook = json.loads(f.read())
@@ -51,9 +50,11 @@ def processfile(filepath):
   if notebook == None or (not notebook['version'] == 'NotebookV1'):
     print('SKIPPING file, ', filepath, '. Not a notebook.')
     return
-
+  
   # prepare output dir:
   dir = outdir(filepath)
+
+  print(os.path.basename(filepath), '->', os.path.basename(dir))
 
   notebookName = notebook['name']
   commands = notebook['commands']
@@ -73,6 +74,29 @@ def processfile(filepath):
       with open(path, 'w') as f:
         f.write(cmdstr.encode('utf-8'))
 
+def iszipfile(filepath):
+  with open(filepath, 'r') as f:
+    bits = f.read(3)
+    return len(bits) == 3 and bits[0] == 'P' and bits[1] == 'K' and bits[2] == '\x03'
+
+def processdir(filepath, deleteFileAfter=False):
+  for dir, dirs, files in os.walk(filepath):
+      for filepath in files:
+        fullpath=os.path.join(dir, filepath)
+        processjsonfile(fullpath)
+        if deleteFileAfter: os.remove(fullpath)
+
+def processzipfile(filepath):
+  import tempfile
+  from tempfile import mkdtemp
+  from zipfile import ZipFile
+  destDir = tempfile.mkdtemp()
+  with ZipFile(filepath, 'r') as dbc:
+    dbc.extractall(destDir)
+  processdir(destDir, deleteFileAfter=True)
+  from shutil import move
+  move(destDir, filepath + '-exploded')
+  
 def main():
   if len(sys.argv) != 2:
     print('sys.argv', sys.argv)
@@ -87,11 +111,12 @@ def main():
   #load file:
   filepath = os.path.abspath(sys.argv[1])
   if os.path.isfile(filepath):
-    processfile(filepath)
+    if iszipfile(filepath):
+      processzipfile(filepath)
+    else:
+      processjsonfile(filepath)
   elif os.path.isdir(filepath):
-    for dir, dirs, files in os.walk(filepath):
-      for filepath in files:
-        processfile(os.path.join(dir, filepath))
+    processdir(filepath)
 
 
 if __name__ == "__main__":
