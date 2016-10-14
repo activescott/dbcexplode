@@ -1,13 +1,17 @@
 # dbc explode
 
-dbcexplode will unpack the source files from a Databricks .dbc archive file. Databricks' .dbc archive files can be saved from the Databricks application by exporting a notebook file or folder. Then unzip the dbc files as a zip file into a directory and use this utility to unpack the resulting notebook json files into readable source files that are contained inside each.
+dbcexplode unpacks the source files contained in the notebooks of a Databricks .dbc archive file. Databricks' .dbc archive files can be saved from the Databricks application by exporting a notebook file or folder. You can explode the dbc file directly or unzip the notebooks out of the dbc file explode individual notebooks into readable and immediately usable source files from inside the notebooks.
 
 ## Usage
-Unpack a single dbc archive file:
+Unpack a dbc archive file directly (potentially containing multiple notebooks):
 
-    python dbcexplode.py ./dbcdir/somefile.python
+    python dbcexplode.py ./dbcdir/exported.dbc
 
-Unpack a folder of dbc files:
+Unpack a single notebook file from inside a dbc:
+
+    python dbcexplode.py ./dbcdir/notebook.python
+
+Unpack a folder of notebook files:
 
     python dbcexplode.py ./dbcdir/
 
