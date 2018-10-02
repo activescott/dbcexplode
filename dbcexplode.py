@@ -19,6 +19,7 @@ def getExtension(notebook, command):
     'python': 'py',
     'md': 'md',
     'sql': 'sql',
+    'scala': 'scala',
   }
   cmdstr = command['command']
   if len(cmdstr) == 0:
@@ -28,7 +29,7 @@ def getExtension(notebook, command):
   ext = extMap[prefix] if prefix in extMap else None
   
   if ext is None:
-    ext = extMap[notebook['language']]
+    ext = extMap.get(notebook['language'])
     
   return ext if ext is not None else '' 
   
