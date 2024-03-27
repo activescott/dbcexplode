@@ -1,5 +1,5 @@
+#!/usr/bin/python3
 """explodes the dbc files from databricks into more useful python/sql/markdown files."""
-from __future__ import print_function
 import json
 import sys
 import os
@@ -43,7 +43,7 @@ def processjsonfile(filepath):
   with open(filepath) as f:
     try:
       notebook = json.loads(f.read())
-    except ValueError, e:
+    except ValueError as e:
       notebook = None
       pass
 
@@ -73,12 +73,12 @@ def processjsonfile(filepath):
       path = os.path.join(dir, notebookName + str(commandNo) + '.' + ext)
       
       with open(path, 'w') as f:
-        f.write(cmdstr.encode('utf-8'))
+        f.write(cmdstr)
 
 def iszipfile(filepath):
-  with open(filepath, 'r') as f:
+  with open(filepath, 'rb') as f:
     bits = f.read(3)
-    return len(bits) == 3 and bits[0] == 'P' and bits[1] == 'K' and bits[2] == '\x03'
+    return bits == b'PK\x03'
 
 def processdir(filepath, deleteFileAfter=False):
   for dir, dirs, files in os.walk(filepath):
@@ -104,7 +104,7 @@ def main():
     print("""
     Usage: dbc-explode <dbc_file>
 
-    Run with example jar:
+    Run with example file:
     dbc-explode /path/file.dbc
     """, file=sys.stderr)
     exit(-1)
@@ -113,8 +113,10 @@ def main():
   filepath = os.path.abspath(sys.argv[1])
   if os.path.isfile(filepath):
     if iszipfile(filepath):
+      print("procesing as zip file")
       processzipfile(filepath)
     else:
+      print("procesing as json file")
       processjsonfile(filepath)
   elif os.path.isdir(filepath):
     processdir(filepath)
